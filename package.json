@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "keywords": ["business", "time", "calculator", "luxon", "typescript", "node", "js", "javascript", "business-time", "business-time-calculator"],
   "main": "dist/BusinessTime.js",
   "types": "dist/BusinessTime.d.ts",
   "scripts": {
