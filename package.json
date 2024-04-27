@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "src/BusinessTime.ts",
+  "main": "dist/BusinessTime.js",
+  "types": "dist/BusinessTime.d.ts",
   "scripts": {
     "build": "tsc",
     "lint": "eslint",
