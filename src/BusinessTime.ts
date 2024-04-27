@@ -9,12 +9,14 @@ export type DayOfWeek =
   | 'saturday'
   | 'sunday';
 
+export type Holiday = `${3 | 2 | 1 | 0}${number}/${1 | 0}${number}`;
+
 export class BusinessTime {
   // TODO: improve types
   private businessTimezone: string;
 
   private businessDays: DayOfWeek[];
-  private holidays: string[];
+  private holidays: Holiday[];
   private startOfDayTime: { hour: number; minute: number; second: number };
   private endOfDayTime: { hour: number; minute: number; second: number };
 
@@ -37,7 +39,7 @@ export class BusinessTime {
     businessTimezone: string;
     businessDays: DayOfWeek[];
     businessHours: number[];
-    holidays: string[];
+    holidays: Holiday[];
   }) {
     this.businessTimezone = businessTimezone;
     this.businessDays = businessDays;
@@ -66,7 +68,7 @@ export class BusinessTime {
     const date = datetime.setZone(this.businessTimezone);
     if (!date.isValid) throw new Error('Invalid date');
 
-    const dayMonth = date.toFormat('dd/MM');
+    const dayMonth = date.toFormat('dd/MM') as Holiday;
     if (this.holidays.includes(dayMonth)) return false;
 
     if (this.businessDays.includes(date.weekdayLong.toLowerCase() as DayOfWeek))

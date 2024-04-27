@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BusinessTime, DayOfWeek } from './BusinessTime';
+import { BusinessTime, DayOfWeek, Holiday } from './BusinessTime';
 import { describe, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 
@@ -7,7 +7,7 @@ type TestCase = {
   businessTimezone: string;
   businessDays: DayOfWeek[];
   businessHours: number[];
-  holidays: string[];
+  holidays: Holiday[];
   start?: string;
   end?: string;
   expected: any;
