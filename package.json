@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "src/BusinessTime.ts",
   "scripts": {
-    "test": "TZ='Europe/Rome' tsx BusinessTime.test.ts",
-    "lint": "eslint"
+    "build": "tsc",
+    "lint": "eslint",
+    "test": "TZ='Europe/Rome' tsx src/BusinessTime.test.ts"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/luxon": "^3.4.2",
+    "@types/luxon": "3.4.2",
     "@types/node": "20.12.4",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
@@ -20,7 +21,8 @@
     "eslint-plugin-n": "16.6.2",
     "eslint-plugin-promise": "6.1.1",
     "prettier": "3.2.5",
-    "tsx": "4.7.2"
+    "tsx": "4.7.2",
+    "typescript": "5.4.5"
   },
   "dependencies": {
     "luxon": "3.4.4"

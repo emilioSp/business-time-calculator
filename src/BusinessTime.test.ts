@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { BusinessTime, DayOfWeek } from './BusinessTime.js';
+import { BusinessTime, DayOfWeek } from './BusinessTime';
 import { describe, test } from 'node:test';
 import * as assert from 'node:assert/strict';
 
@@ -28,6 +28,10 @@ const testEachComputeTime = (
     holidays,
     expected,
   } of testCases) {
+    if (!start || !end) {
+      throw new Error('Start and end dates must be defined');
+    }
+
     const startDatetime = DateTime.fromISO(start) as DateTime;
     if (!startDatetime.isValid) {
       throw new Error(`Invalid start datetime: ${start}`);

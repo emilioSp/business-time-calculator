@@ -18,7 +18,7 @@ export class BusinessTime {
   private startOfDayTime: { hour: number; minute: number; second: number };
   private endOfDayTime: { hour: number; minute: number; second: number };
 
-  static computeWorkingHours = (startHour, endHour) => {
+  static computeWorkingHours = (startHour: number, endHour: number) => {
     if (endHour < startHour) {
       const workingHours = Math.abs(Math.abs(startHour - 24) + endHour);
       return workingHours;
@@ -64,6 +64,7 @@ export class BusinessTime {
 
   isBusinessDay(datetime: DateTime) {
     const date = datetime.setZone(this.businessTimezone);
+    if (!date.isValid) throw new Error('Invalid date');
 
     const dayMonth = date.toFormat('dd/MM');
     if (this.holidays.includes(dayMonth)) return false;
