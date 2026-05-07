@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm run build   # Compile TypeScript to dist/
-npm run lint    # Run ESLint
+npm run lint    # Run biome
 npm test        # Run test suite (sets TZ=Europe/Rome automatically)
 ```
 
