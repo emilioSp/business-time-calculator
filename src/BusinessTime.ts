@@ -1,6 +1,3 @@
-import type { DateTime } from 'luxon';
-
-
 export const DayOfWeek = {
   MONDAY: 'MONDAY',
   TUESDAY: 'TUESDAY',
@@ -13,25 +10,30 @@ export const DayOfWeek = {
 
 export type DAY_OF_WEEK = keyof typeof DayOfWeek;
 
-export type Holiday = `${3 | 2 | 1 | 0}${number}/${1 | 0}${number}`;
+export type Holiday = `${3 | 2 | 1 | 0}${number}/${1 | 0}${number}`; // e.g. 31/12, 01/01
+
+const WEEKDAYS: DAY_OF_WEEK[] = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+];
 
 export class BusinessTime {
-  // TODO: improve types
   private businessTimezone: string;
-
   private businessDays: DAY_OF_WEEK[];
   private holidays: Holiday[];
-  private startOfDayTime: { hour: number; minute: number; second: number };
-  private endOfDayTime: { hour: number; minute: number; second: number };
+  private startHour: number;
+  private endHour: number;
 
   static computeWorkingHours = (startHour: number, endHour: number) => {
     if (endHour < startHour) {
-      const workingHours = Math.abs(Math.abs(startHour - 24) + endHour);
-      return workingHours;
+      return Math.abs(Math.abs(startHour - 24) + endHour);
     }
-
-    const workingHours = endHour - startHour;
-    return workingHours;
+    return endHour - startHour;
   };
 
   constructor({
@@ -48,35 +50,46 @@ export class BusinessTime {
     this.businessTimezone = businessTimezone;
     this.businessDays = businessDays;
     this.holidays = holidays;
-    this.startOfDayTime = {
-      hour: businessHours[0],
+    this.startHour = businessHours[0];
+    this.endHour = businessHours[1];
+  }
+
+  private setToStartOfDay(dt: Temporal.ZonedDateTime): Temporal.ZonedDateTime {
+    return dt.with({
+      hour: this.startHour,
       minute: 0,
       second: 0,
-    };
-    this.endOfDayTime = {
-      hour: businessHours[1],
+      millisecond: 0,
+    });
+  }
+
+  private setToEndOfDay(dt: Temporal.ZonedDateTime): Temporal.ZonedDateTime {
+    if (this.endHour === 24) {
+      return dt
+        .with({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+        .add({ days: 1 });
+    }
+    return dt.with({
+      hour: this.endHour,
       minute: 0,
       second: 0,
-    };
+      millisecond: 0,
+    });
   }
 
   computeWorkingHours = () => {
-    const workingHours = BusinessTime.computeWorkingHours(
-      this.startOfDayTime.hour,
-      this.endOfDayTime.hour,
-    );
-    return workingHours;
+    return BusinessTime.computeWorkingHours(this.startHour, this.endHour);
   };
 
-  isBusinessDay(datetime: DateTime) {
-    const date = datetime.setZone(this.businessTimezone);
-    if (!date.isValid) throw new Error('Invalid date');
+  isBusinessDay(datetime: Temporal.ZonedDateTime) {
+    const date = datetime.toInstant().toZonedDateTimeISO(this.businessTimezone);
 
-    const dayMonth = date.toFormat('dd/MM') as Holiday;
+    const dayMonth =
+      `${date.day.toString().padStart(2, '0')}/${date.month.toString().padStart(2, '0')}` as Holiday;
     if (this.holidays.includes(dayMonth)) return false;
 
-    if (this.businessDays.includes(date.weekdayLong.toUpperCase() as DAY_OF_WEEK))
-      return true;
+    const weekday = WEEKDAYS[date.dayOfWeek - 1];
+    if (this.businessDays.includes(weekday)) return true;
 
     return false;
   }
@@ -85,20 +98,19 @@ export class BusinessTime {
     start,
     end,
   }: {
-    start: DateTime;
-    end: DateTime;
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
   }) {
     const businessHours = this.computeBusinessHoursInInterval({ start, end });
-    const workingHours = this.computeWorkingHours();
-    return businessHours / workingHours;
+    return businessHours / this.computeWorkingHours();
   }
 
   computeBusinessHoursInInterval({
     start,
     end,
   }: {
-    start: DateTime;
-    end: DateTime;
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
   }) {
     return this.computeBusinessTimeInInterval({ start, end, unit: 'hours' });
   }
@@ -107,8 +119,8 @@ export class BusinessTime {
     start,
     end,
   }: {
-    start: DateTime;
-    end: DateTime;
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
   }) {
     return this.computeBusinessTimeInInterval({ start, end, unit: 'minutes' });
   }
@@ -117,8 +129,8 @@ export class BusinessTime {
     start,
     end,
   }: {
-    start: DateTime;
-    end: DateTime;
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
   }) {
     return this.computeBusinessTimeInInterval({ start, end, unit: 'seconds' });
   }
@@ -128,11 +140,11 @@ export class BusinessTime {
     end,
     unit,
   }: {
-    start: DateTime;
-    end: DateTime;
+    start: Temporal.ZonedDateTime;
+    end: Temporal.ZonedDateTime;
     unit: 'hours' | 'minutes' | 'seconds';
   }) {
-    if (start > end) {
+    if (Temporal.ZonedDateTime.compare(start, end) > 0) {
       throw new Error('start date is greater than end date');
     }
 
@@ -144,19 +156,19 @@ export class BusinessTime {
     let datetime = interval.start;
     let businessTime = 0;
 
-    while (datetime < interval.end) {
+    while (Temporal.ZonedDateTime.compare(datetime, interval.end) < 0) {
       if (!this.isBusinessDay(datetime)) {
-        datetime = datetime.plus({ days: 1 }).set(this.startOfDayTime);
+        datetime = this.setToStartOfDay(datetime.add({ days: 1 }));
         continue;
       }
 
-      if (datetime.toISODate() === interval.end.toISODate()) {
-        businessTime += interval.end.diff(datetime).as(unit);
+      if (datetime.toPlainDate().equals(interval.end.toPlainDate())) {
+        businessTime += interval.end.since(datetime).total(unit);
         datetime = interval.end;
       } else {
-        const endOfBusinessDay = datetime.set(this.endOfDayTime);
-        businessTime += endOfBusinessDay.diff(datetime).as(unit);
-        datetime = datetime.plus({ days: 1 }).set(this.startOfDayTime);
+        const endOfBusinessDay = this.setToEndOfDay(datetime);
+        businessTime += endOfBusinessDay.since(datetime).total(unit);
+        datetime = this.setToStartOfDay(datetime.add({ days: 1 }));
       }
     }
 
@@ -179,30 +191,27 @@ export class BusinessTime {
     datetime,
     moveBehind = false,
   }: {
-    datetime: DateTime;
+    datetime: Temporal.ZonedDateTime;
     moveBehind?: boolean;
   }) {
-    let date = datetime.setZone(this.businessTimezone);
-    const start = date.set(this.startOfDayTime);
-    const end = date.set(this.endOfDayTime);
+    let date = datetime.toInstant().toZonedDateTimeISO(this.businessTimezone);
+    const start = this.setToStartOfDay(date);
+    const end = this.setToEndOfDay(date);
 
-    if (date < start) {
-      // Move datetime to the start / end of the business day
+    if (Temporal.ZonedDateTime.compare(date, start) < 0) {
       date = moveBehind
-        ? date.minus({ days: 1 }).set(this.endOfDayTime)
+        ? this.setToEndOfDay(date.subtract({ days: 1 }))
         : start;
     }
-    if (date > end) {
-      // Move datetime to the start of the next / previous day
+    if (Temporal.ZonedDateTime.compare(date, end) > 0) {
       date = moveBehind
-        ? date.set(this.endOfDayTime)
-        : date.plus({ days: 1 }).set(this.startOfDayTime);
+        ? this.setToEndOfDay(date)
+        : this.setToStartOfDay(date.add({ days: 1 }));
     }
     while (!this.isBusinessDay(date)) {
-      // Move datetime to the start of the next / previous business day
       date = moveBehind
-        ? date.minus({ days: 1 }).set(this.endOfDayTime)
-        : date.plus({ days: 1 }).set(this.startOfDayTime);
+        ? this.setToEndOfDay(date.subtract({ days: 1 }))
+        : this.setToStartOfDay(date.add({ days: 1 }));
     }
     return date;
   }
@@ -211,7 +220,7 @@ export class BusinessTime {
     datetime,
     hours,
   }: {
-    datetime: DateTime;
+    datetime: Temporal.ZonedDateTime;
     hours: number;
   }) {
     return this.addBusinessSecondsToDate({ datetime, seconds: 3600 * hours });
@@ -221,7 +230,7 @@ export class BusinessTime {
     datetime,
     seconds,
   }: {
-    datetime: DateTime;
+    datetime: Temporal.ZonedDateTime;
     seconds: number;
   }) {
     if (seconds === 0) {
@@ -232,34 +241,35 @@ export class BusinessTime {
     let remainingSeconds = seconds;
     while (remainingSeconds > 0) {
       if (!this.isBusinessDay(date)) {
-        date = date.plus({ days: 1 });
+        date = date.add({ days: 1 });
         continue;
       }
 
-      const endOfBusinessDay = date.set(this.endOfDayTime);
-      const secondsUntilEndOfBusinessDay = endOfBusinessDay
-        .diff(date)
-        .as('seconds');
+      const endOfBusinessDay = this.setToEndOfDay(date);
+      const secondsUntilEndOfBusinessDay = Math.round(
+        endOfBusinessDay.since(date).total('seconds'),
+      );
 
       if (remainingSeconds <= secondsUntilEndOfBusinessDay) {
-        // remaining seconds are less than 1 business day
-        date = date.plus({ seconds: remainingSeconds });
+        date = date.add({ seconds: remainingSeconds });
         remainingSeconds = 0;
       } else {
-        // Move to the start of the next day
-        date = date.plus({ days: 1 }).set(this.startOfDayTime);
+        date = this.setToStartOfDay(date.add({ days: 1 }));
         remainingSeconds -= secondsUntilEndOfBusinessDay;
       }
     }
 
-    return date.set({ second: 0, millisecond: 0 }).setZone(datetime.zone);
+    return date
+      .with({ second: 0, millisecond: 0 })
+      .toInstant()
+      .toZonedDateTimeISO(datetime.timeZoneId);
   }
 
   removeBusinessHoursFromDate({
     datetime,
     hours,
   }: {
-    datetime: DateTime;
+    datetime: Temporal.ZonedDateTime;
     hours: number;
   }) {
     return this.removeBusinessSecondsFromDate({
@@ -272,7 +282,7 @@ export class BusinessTime {
     datetime,
     seconds,
   }: {
-    datetime: DateTime;
+    datetime: Temporal.ZonedDateTime;
     seconds: number;
   }) {
     if (seconds === 0) {
@@ -283,45 +293,39 @@ export class BusinessTime {
     let remainingSeconds = seconds;
     while (remainingSeconds > 0) {
       if (!this.isBusinessDay(date)) {
-        date = date.minus({ days: 1 });
+        date = date.subtract({ days: 1 });
         continue;
       }
 
       const startOfBusinessDay =
         date.hour === 0 && date.minute === 0
-          ? date.minus({ days: 1 }).set(this.startOfDayTime)
-          : date.set(this.startOfDayTime);
-      const secondsFromStartOfBusinessDay = date
-        .diff(startOfBusinessDay)
-        .as('seconds');
+          ? this.setToStartOfDay(date.subtract({ days: 1 }))
+          : this.setToStartOfDay(date);
+      const secondsFromStartOfBusinessDay = Math.round(
+        date.since(startOfBusinessDay).total('seconds'),
+      );
 
       if (remainingSeconds <= secondsFromStartOfBusinessDay) {
-        // remaining seconds are less than 1 business day
-        date = date.minus({ seconds: remainingSeconds });
+        date = date.subtract({ seconds: remainingSeconds });
         remainingSeconds = 0;
       } else {
-        // Move to the end of the previous day
-        date = date.minus({ days: 1 });
-
-        // handle special case 24h business days. If it is midnight and endOfDayTime is midnight, we must not set the date to the end of the day, otherwise we lose the effect of removing 1 day
-        if (
-          !(
-            date.hour === 0 &&
-            date.minute === 0 &&
-            this.endOfDayTime.hour === 24
-          )
-        ) {
-          date = date.set(this.endOfDayTime);
+        date = date.subtract({ days: 1 });
+        // For endHour=24, setToEndOfDay on a midnight date would move forward again.
+        // When already at midnight, stay there — it IS the end of the 24h day.
+        if (!(date.hour === 0 && date.minute === 0 && this.endHour === 24)) {
+          date = this.setToEndOfDay(date);
         }
         remainingSeconds -= secondsFromStartOfBusinessDay;
       }
     }
 
-    return date.set({ second: 0, millisecond: 0 }).setZone(datetime.zone);
+    return date
+      .with({ second: 0, millisecond: 0 })
+      .toInstant()
+      .toZonedDateTimeISO(datetime.timeZoneId);
   }
 
   hoursToDays(hours: number) {
-    const days = hours / this.computeWorkingHours();
-    return days;
+    return hours / this.computeWorkingHours();
   }
 }
