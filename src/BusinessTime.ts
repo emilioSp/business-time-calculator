@@ -1,13 +1,17 @@
-import { DateTime } from 'luxon';
+import type { DateTime } from 'luxon';
 
-export type DayOfWeek =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday';
+
+export const DayOfWeek = {
+  MONDAY: 'MONDAY',
+  TUESDAY: 'TUESDAY',
+  WEDNESDAY: 'WEDNESDAY',
+  THURSDAY: 'THURSDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  SUNDAY: 'SUNDAY',
+} as const;
+
+export type DAY_OF_WEEK = keyof typeof DayOfWeek;
 
 export type Holiday = `${3 | 2 | 1 | 0}${number}/${1 | 0}${number}`;
 
@@ -15,7 +19,7 @@ export class BusinessTime {
   // TODO: improve types
   private businessTimezone: string;
 
-  private businessDays: DayOfWeek[];
+  private businessDays: DAY_OF_WEEK[];
   private holidays: Holiday[];
   private startOfDayTime: { hour: number; minute: number; second: number };
   private endOfDayTime: { hour: number; minute: number; second: number };
@@ -37,7 +41,7 @@ export class BusinessTime {
     holidays,
   }: {
     businessTimezone: string;
-    businessDays: DayOfWeek[];
+    businessDays: DAY_OF_WEEK[];
     businessHours: number[];
     holidays: Holiday[];
   }) {
@@ -71,7 +75,7 @@ export class BusinessTime {
     const dayMonth = date.toFormat('dd/MM') as Holiday;
     if (this.holidays.includes(dayMonth)) return false;
 
-    if (this.businessDays.includes(date.weekdayLong.toLowerCase() as DayOfWeek))
+    if (this.businessDays.includes(date.weekdayLong.toUpperCase() as DAY_OF_WEEK))
       return true;
 
     return false;

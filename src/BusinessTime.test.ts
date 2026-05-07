@@ -1,11 +1,15 @@
 import { DateTime } from 'luxon';
-import { BusinessTime, DayOfWeek, Holiday } from './BusinessTime';
-import { describe, test } from 'node:test';
-import * as assert from 'node:assert/strict';
+import { describe, expect, test } from 'vitest';
+import {
+  BusinessTime,
+  type DAY_OF_WEEK,
+  DayOfWeek,
+  type Holiday,
+} from './BusinessTime.js';
 
 type TestCase = {
   businessTimezone: string;
-  businessDays: DayOfWeek[];
+  businessDays: DAY_OF_WEEK[];
   businessHours: number[];
   holidays: Holiday[];
   start?: string;
@@ -47,14 +51,13 @@ const testEachComputeTime = (
       holidays,
     });
 
-    assert.deepStrictEqual(
-      // @ts-ignore
+    expect(
+      // @ts-expect-error
       businessTime[businessTimeFunctionName]({
         start: startDatetime,
         end: endDatetime,
       }),
-      expected,
-    );
+    ).toEqual(expected);
   }
 };
 
@@ -77,15 +80,14 @@ const testEachMoveDateInBusinessTime = (
       holidays,
     });
 
-    assert.deepStrictEqual(
+    expect(
       businessTime
         ._moveDateInBusinessTime({
           datetime: DateTime.fromISO(datetime),
           moveBehind,
         })
         .toISO(),
-      expected,
-    );
+    ).toEqual(expected);
   }
 };
 
@@ -111,7 +113,7 @@ const testEachIsBusinessDay = (
       holidays,
     });
 
-    assert.deepStrictEqual(businessTime.isBusinessDay(datetimeObj), expected);
+    expect(businessTime.isBusinessDay(datetimeObj)).toEqual(expected);
   }
 };
 
@@ -138,12 +140,11 @@ const testEachAddBusinessSecondsToDate = (
       holidays,
     });
 
-    assert.deepStrictEqual(
+    expect(
       businessTime
         .addBusinessSecondsToDate({ datetime: datetimeObj, seconds })
         .toISO(),
-      expected,
-    );
+    ).toEqual(expected);
   }
 };
 
@@ -170,12 +171,11 @@ const testEachRemoveBusinessSecondsToDate = (
       holidays,
     });
 
-    assert.deepStrictEqual(
+    expect(
       businessTime
         .removeBusinessSecondsFromDate({ datetime: datetimeObj, seconds })
         .toISO(),
-      expected,
-    );
+    ).toEqual(expected);
   }
 };
 
@@ -186,11 +186,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -209,11 +209,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -224,11 +224,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: ['25/12', '26/12'],
@@ -239,11 +239,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -254,11 +254,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -269,11 +269,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -284,11 +284,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'America/Los_Angeles',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -299,11 +299,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -322,11 +322,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -337,11 +337,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'Europe/Rome',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: ['01/01'],
@@ -360,11 +360,11 @@ describe('BusinessTime', () => {
         {
           businessTimezone: 'America/Los_Angeles',
           businessDays: [
-            'monday',
-            'tuesday',
-            'wednesday',
-            'thursday',
-            'friday',
+            DayOfWeek.MONDAY,
+            DayOfWeek.TUESDAY,
+            DayOfWeek.WEDNESDAY,
+            DayOfWeek.THURSDAY,
+            DayOfWeek.FRIDAY,
           ],
           businessHours: [10, 19],
           holidays: [],
@@ -381,7 +381,7 @@ describe('BusinessTime', () => {
     testEachIsBusinessDay([
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [10, 19],
         holidays: ['25/12', '26/12'],
         datetime: '2020-12-28T14:00:00.000+01:00',
@@ -389,7 +389,7 @@ describe('BusinessTime', () => {
       }, // monday
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'friday'],
+        businessDays: [DayOfWeek.MONDAY, DayOfWeek.FRIDAY],
         businessHours: [10, 19],
         holidays: ['26/12'],
         datetime: '2020-12-25T14:00:00.000+01:00',
@@ -397,7 +397,7 @@ describe('BusinessTime', () => {
       }, // Christmas 2020 (friday) configured as business day
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         holidays: ['25/12', '26/12'],
         businessHours: [10, 19],
         datetime: '2020-12-27T14:00:00.000+01:00',
@@ -405,7 +405,7 @@ describe('BusinessTime', () => {
       }, // tuesday configured as rest day
       {
         businessTimezone: 'America/Los_Angeles',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [10, 19],
         holidays: ['25/12', '26/12'],
         datetime: '2020-12-28T01:00:00.000+01:00',
@@ -418,7 +418,7 @@ describe('BusinessTime', () => {
     testEachMoveDateInBusinessTime([
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [13, 15],
         holidays: [],
         moveBehind: false,
@@ -427,7 +427,7 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [13, 15],
         holidays: [],
         moveBehind: false,
@@ -436,7 +436,7 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [13, 15],
         holidays: ['01/01'],
         moveBehind: false,
@@ -445,7 +445,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'America/Los_Angeles',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         moveBehind: false,
@@ -454,7 +460,7 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday'],
+        businessDays: [DayOfWeek.MONDAY, DayOfWeek.TUESDAY],
         businessHours: [13, 15],
         holidays: [],
         moveBehind: true,
@@ -463,7 +469,7 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [13, 15],
         holidays: [],
         moveBehind: true,
@@ -472,7 +478,7 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday'],
+        businessDays: [DayOfWeek.MONDAY],
         businessHours: [13, 15],
         holidays: ['01/01'],
         moveBehind: true,
@@ -481,7 +487,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'America/Los_Angeles',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         moveBehind: true,
@@ -495,7 +507,13 @@ describe('BusinessTime', () => {
     testEachAddBusinessSecondsToDate([
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         datetime: '2020-12-28T10:45:00.000+01:00',
@@ -504,7 +522,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         datetime: '2022-04-04T19:45:00.000+02:00',
@@ -514,13 +538,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 24],
         holidays: ['01/01'],
@@ -531,13 +555,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 24],
         holidays: [],
@@ -548,13 +572,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 12],
         holidays: [],
@@ -565,13 +589,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 12],
         holidays: [],
@@ -582,13 +606,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [12, 24],
         holidays: [],
@@ -603,7 +627,13 @@ describe('BusinessTime', () => {
     testEachRemoveBusinessSecondsToDate([
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         datetime: '2020-12-28T10:45:00.000+01:00',
@@ -612,7 +642,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ],
         businessHours: [10, 19],
         holidays: [],
         datetime: '2022-04-08T19:45:00.000+02:00',
@@ -622,13 +658,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 24],
         holidays: ['25/12'],
@@ -638,7 +674,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], // handle weekend
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ], // handle weekend
         businessHours: [0, 24],
         holidays: [],
         datetime: '2022-04-11T12:00:00.000+02:00',
@@ -647,7 +689,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], // handle weekend
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ], // handle weekend
         businessHours: [1, 24],
         holidays: [],
         datetime: '2022-04-11T12:00:00.000+02:00',
@@ -657,13 +705,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 12],
         holidays: [],
@@ -674,13 +722,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [0, 12],
         holidays: [],
@@ -691,13 +739,13 @@ describe('BusinessTime', () => {
       {
         businessTimezone: 'Europe/Rome',
         businessDays: [
-          'monday',
-          'tuesday',
-          'wednesday',
-          'thursday',
-          'friday',
-          'saturday',
-          'sunday',
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+          DayOfWeek.SATURDAY,
+          DayOfWeek.SUNDAY,
         ],
         businessHours: [12, 24],
         holidays: [],
@@ -707,7 +755,13 @@ describe('BusinessTime', () => {
       },
       {
         businessTimezone: 'Europe/Rome',
-        businessDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], // handle weekend
+        businessDays: [
+          DayOfWeek.MONDAY,
+          DayOfWeek.TUESDAY,
+          DayOfWeek.WEDNESDAY,
+          DayOfWeek.THURSDAY,
+          DayOfWeek.FRIDAY,
+        ], // handle weekend
         businessHours: [12, 24],
         holidays: [],
         datetime: '2022-04-11T10:00:00.000+02:00',
@@ -718,9 +772,94 @@ describe('BusinessTime', () => {
   });
 
   test('compute working hours', () => {
-    assert.strictEqual(BusinessTime.computeWorkingHours(10, 19), 9);
-    assert.strictEqual(BusinessTime.computeWorkingHours(0, 24), 24);
-    assert.strictEqual(BusinessTime.computeWorkingHours(18, 3), 9);
-    assert.strictEqual(BusinessTime.computeWorkingHours(22, 0), 2);
+    expect(BusinessTime.computeWorkingHours(10, 19)).toBe(9);
+    expect(BusinessTime.computeWorkingHours(0, 24)).toBe(24);
+    expect(BusinessTime.computeWorkingHours(18, 3)).toBe(9);
+    expect(BusinessTime.computeWorkingHours(22, 0)).toBe(2);
+  });
+
+  test('add business hours to date', () => {
+    const businessTime = new BusinessTime({
+      businessTimezone: 'Europe/Rome',
+      businessDays: [
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+      ],
+      businessHours: [10, 19],
+      holidays: [],
+    });
+    expect(
+      businessTime
+        .addBusinessHoursToDate({
+          datetime: DateTime.fromISO('2020-12-28T10:45:00.000+01:00'),
+          hours: 10,
+        })
+        .toISO(),
+    ).toEqual('2020-12-29T11:45:00.000+01:00');
+  });
+
+  test('remove business hours from date', () => {
+    const businessTime = new BusinessTime({
+      businessTimezone: 'Europe/Rome',
+      businessDays: [
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+      ],
+      businessHours: [10, 19],
+      holidays: [],
+    });
+    expect(
+      businessTime
+        .removeBusinessHoursFromDate({
+          datetime: DateTime.fromISO('2020-12-28T10:45:00.000+01:00'),
+          hours: 10,
+        })
+        .toISO(),
+    ).toEqual('2020-12-24T18:45:00.000+01:00');
+  });
+
+  test('hours to days', () => {
+    const businessTime = new BusinessTime({
+      businessTimezone: 'Europe/Rome',
+      businessDays: [
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+      ],
+      businessHours: [10, 19],
+      holidays: [],
+    });
+    expect(businessTime.hoursToDays(9)).toBe(1);
+    expect(businessTime.hoursToDays(4.5)).toBe(0.5);
+  });
+
+  test('add/remove business seconds with zero returns same datetime', () => {
+    const businessTime = new BusinessTime({
+      businessTimezone: 'Europe/Rome',
+      businessDays: [
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+      ],
+      businessHours: [10, 19],
+      holidays: [],
+    });
+    const datetime = DateTime.fromISO('2020-12-28T14:00:00.000+01:00');
+    expect(
+      businessTime.addBusinessSecondsToDate({ datetime, seconds: 0 }),
+    ).toBe(datetime);
+    expect(
+      businessTime.removeBusinessSecondsFromDate({ datetime, seconds: 0 }),
+    ).toBe(datetime);
   });
 });
